@@ -76,8 +76,9 @@ void MainWindow::on_pb_import_clicked()
     for(;strliter != tmpFileNames.end(); ++strliter)
     {
         QStandardItem *item = new QStandardItem((*strliter).toLocal8Bit().constData());
-        QList<QStandardItem*> tmp = listmodel.findItems((*strliter).toLocal8Bit().constData());
-        if(tmp.size() > 0)
+        int tmpcheck = inFileNames.indexOf(*strliter);
+        //QList<QStandardItem*> tmp = listmodel.findItems((*strliter).toLocal8Bit().constData());
+        if(tmpcheck >= 0)
         {
             isRepeated = true;
             rcount++;
