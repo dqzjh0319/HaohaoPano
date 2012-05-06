@@ -12,7 +12,7 @@
 #include <QQueue>
 #include <QStack>
 #include <QSize>
-#include <QPicture>
+#include <QPixmap>
 #include <QMessageBox>
 
 #define DEFAULT_WIDTH 800

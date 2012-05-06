@@ -16,7 +16,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionImport_triggered()
 {
-
+    QPixmap tmp;
+    bool test = tmp.load("FusionResult.png");
+    qDebug() << test;
+    ui->lbl_mainDisplay->setPixmap(tmp);
 }
 
 void MainWindow::statusRefresh()
@@ -138,25 +141,20 @@ void MainWindow::on_lv_files_doubleClicked(const QModelIndex &index)
     QString filename = inFileNames[index.row()];
     QPixmap showimg;
     //qDebug() << index.row();
+    cv::Mat tmpshowimg = cv::imread(filename.toAscii().data());
+    cv::cvtColor(tmpshowimg,tmpshowimg,CV_BGR2RGB);
     if(isFeaDetected)
     {
-        cv::Mat tmpshowimg = cv::imread(filename.toAscii().data());
-        cv::cvtColor(tmpshowimg,tmpshowimg,CV_BGR2RGB);
         cv::drawKeypoints(tmpshowimg,
                           keyPointVec[index.row()],
                           tmpshowimg,
                           cv::Scalar(255,0,0)
                           //cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS
                           );
-        QImage tmpqimg = QImage((const unsigned char*)(tmpshowimg.data),
-                            tmpshowimg.cols,tmpshowimg.rows,QImage::Format_RGB888);
-        showimg = QPixmap::fromImage(tmpqimg);
-        //qDebug() << tmpshowimg.type();
     }
-    else
-    {
-        showimg = QPixmap(filename);
-    }
+    QImage tmpqimg = QImage((const unsigned char*)(tmpshowimg.data),
+                        tmpshowimg.cols,tmpshowimg.rows,QImage::Format_RGB888);
+    showimg = QPixmap::fromImage(tmpqimg);
     showimg = showimg.scaled(DEFAULT_WIDTH,DEFAULT_HEIGHT,
                                       Qt::KeepAspectRatio);
     ui->lbl_mainDisplay->setPixmap(showimg);
@@ -658,8 +656,11 @@ void MainWindow::on_pb_autoMosaic_clicked()
 
     pfmAutoMosaic();
 
-    QPixmap showimg;
-    showimg.load("mosaicResult.png");
+    cv::Mat tmpshowimg = cv::imread("mosaicResult.png");
+    cv::cvtColor(tmpshowimg,tmpshowimg,CV_BGR2RGB);
+    QImage tmpqimg = QImage((const unsigned char*)(tmpshowimg.data),
+                        tmpshowimg.cols,tmpshowimg.rows,QImage::Format_RGB888);
+    QPixmap showimg = QPixmap::fromImage(tmpqimg);
     showimg = showimg.scaled(DEFAULT_WIDTH,DEFAULT_HEIGHT,
                                       Qt::KeepAspectRatio);
     ui->lbl_mainDisplay->setPixmap(showimg);
@@ -833,11 +834,6 @@ void MainWindow::pfmFusion()
     cv::Mat oImage;
     cv::cvtColor(rImage,oImage, CV_RGB2BGR);
     cv::imwrite("FusionResult.png",oImage);
-    QPixmap showimg;
-    showimg.load("FusionResult.png");
-    showimg = showimg.scaled(DEFAULT_WIDTH,DEFAULT_HEIGHT,
-                                      Qt::KeepAspectRatio);
-    ui->lbl_mainDisplay->setPixmap(showimg);
     ui->pb_QuitProcess->setEnabled(true);
     ui->cb_fusion->setChecked(true);
     ui->pb_fushion->setEnabled(false);
@@ -853,6 +849,14 @@ void MainWindow::on_pb_fushion_clicked()
         return;
     }
     pfmFusion();
+    cv::Mat tmpshowimg = cv::imread("FusionResult.png");
+    cv::cvtColor(tmpshowimg,tmpshowimg,CV_BGR2RGB);
+    QImage tmpqimg = QImage((const unsigned char*)(tmpshowimg.data),
+                        tmpshowimg.cols,tmpshowimg.rows,QImage::Format_RGB888);
+    QPixmap showimg = QPixmap::fromImage(tmpqimg);
+    showimg = showimg.scaled(DEFAULT_WIDTH,DEFAULT_HEIGHT,
+                                      Qt::KeepAspectRatio);
+    ui->lbl_mainDisplay->setPixmap(showimg);
 }
 
 void MainWindow::on_pb_QuitProcess_clicked()
