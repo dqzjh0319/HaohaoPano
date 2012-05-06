@@ -14,6 +14,7 @@
 #include <QSize>
 #include <QPixmap>
 #include <QMessageBox>
+#include <QTime>
 
 #define DEFAULT_WIDTH 800
 #define DEFAULT_HEIGHT 600
@@ -94,6 +95,7 @@ private:
     bool isFusioned;
 
     int rstw, rsth;
+    int totaltime;
 };
 
 #endif // MAINWINDOW_H

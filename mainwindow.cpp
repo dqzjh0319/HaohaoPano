@@ -16,10 +16,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionImport_triggered()
 {
-    QPixmap tmp;
-    bool test = tmp.load("FusionResult.png");
-    qDebug() << test;
-    ui->lbl_mainDisplay->setPixmap(tmp);
 }
 
 void MainWindow::statusRefresh()
@@ -214,7 +210,7 @@ void MainWindow::pfmFeatherDetect()
     ui->pb_fMatch->setEnabled(true);
     ui->pb_QuitProcess->setEnabled(true);
     ui->pb_fDectect->setEnabled(false);
-    ui->cb_fdetect->setChecked(true);
+    ui->cb_fdetect->setChecked(true);    
 }
 
 void MainWindow::on_pb_fDectect_clicked()
@@ -226,9 +222,18 @@ void MainWindow::on_pb_fDectect_clicked()
         qmbox.exec();
         return;
     }
-
+    QTime myqtime;
+    myqtime.start();
     pfmFeatherDetect();
-
+    int timecount = myqtime.restart();
+    QTime showtime(0,0,0);
+    showtime = showtime.addMSecs(timecount);
+    QStandardItem *tmpitem =
+            new QStandardItem("cost : "+ showtime.toString("hh:mm:ss.zzz") +" ...");
+    processInfoModel.appendRow(tmpitem);
+    //tmpitem->~QStandardItem();
+    ui->lv_proinfo->scrollToBottom();
+    totaltime = timecount;
 }
 
 void MainWindow::pfmMatch()
@@ -297,8 +302,18 @@ void MainWindow::on_pb_fMatch_clicked()
         qmbox.exec();
         return;
     }
+    QTime myqtime;
+    myqtime.start();
 
     pfmMatch();
+    int timecount = myqtime.restart();
+    QTime showtime(0,0,0);
+    showtime = showtime.addMSecs(timecount);
+    QStandardItem *tmpitem =
+            new QStandardItem("cost : "+ showtime.toString("hh:mm:ss.zzz") +" ...");
+    processInfoModel.appendRow(tmpitem);
+    ui->lv_proinfo->scrollToBottom();
+    totaltime += timecount;
 }
 
 void MainWindow::on_tv_imgGroup_doubleClicked(const QModelIndex &index)
@@ -385,8 +400,18 @@ void MainWindow::on_pb_computeH_clicked()
         qmBox.exec();
         return;
     }
+    QTime myqtime;
+    myqtime.start();
 
     pfmcomputeH();
+    int timecount = myqtime.restart();
+    QTime showtime(0,0,0);
+    showtime = showtime.addMSecs(timecount);
+    QStandardItem *tmpitem =
+            new QStandardItem("cost : "+ showtime.toString("hh:mm:ss.zzz") +" ...");
+    processInfoModel.appendRow(tmpitem);
+    ui->lv_proinfo->scrollToBottom();
+    totaltime += timecount;
 
 }
 
@@ -641,7 +666,7 @@ void MainWindow::pfmAutoMosaic()
     ui->cb_Mosaic->setChecked(true);
     cv::Mat oImage;
     cv::cvtColor(rImage,oImage, CV_RGB2BGR);
-    cv::imwrite("mosaicResult.png",oImage);
+    cv::imwrite("mosaicResult.bmp",oImage);
 }
 
 void MainWindow::on_pb_autoMosaic_clicked()
@@ -653,14 +678,24 @@ void MainWindow::on_pb_autoMosaic_clicked()
         qmBox.exec();
         return;
     }
+    QTime myqtime;
+    myqtime.start();
 
     pfmAutoMosaic();
+    int timecount = myqtime.restart();
+    QTime showtime(0,0,0);
+    showtime = showtime.addMSecs(timecount);
+    QStandardItem *tmpitem =
+            new QStandardItem("cost : "+ showtime.toString("hh:mm:ss.zzz") +" ...");
+    processInfoModel.appendRow(tmpitem);
+    ui->lv_proinfo->scrollToBottom();
+    totaltime += timecount;
 
-    cv::Mat tmpshowimg = cv::imread("mosaicResult.png");
-    cv::cvtColor(tmpshowimg,tmpshowimg,CV_BGR2RGB);
-    QImage tmpqimg = QImage((const unsigned char*)(tmpshowimg.data),
-                        tmpshowimg.cols,tmpshowimg.rows,QImage::Format_RGB888);
-    QPixmap showimg = QPixmap::fromImage(tmpqimg);
+    QPixmap showimg("mosaicResult.bmp");
+    if(showimg.isNull())
+    {
+        return;
+    }
     showimg = showimg.scaled(DEFAULT_WIDTH,DEFAULT_HEIGHT,
                                       Qt::KeepAspectRatio);
     ui->lbl_mainDisplay->setPixmap(showimg);
@@ -833,7 +868,7 @@ void MainWindow::pfmFusion()
     ui->progressBar->setVisible(false);
     cv::Mat oImage;
     cv::cvtColor(rImage,oImage, CV_RGB2BGR);
-    cv::imwrite("FusionResult.png",oImage);
+    cv::imwrite("FusionResult.bmp",oImage);
     ui->pb_QuitProcess->setEnabled(true);
     ui->cb_fusion->setChecked(true);
     ui->pb_fushion->setEnabled(false);
@@ -848,12 +883,24 @@ void MainWindow::on_pb_fushion_clicked()
         qmBox.exec();
         return;
     }
+    QTime myqtime;
+    myqtime.start();
     pfmFusion();
-    cv::Mat tmpshowimg = cv::imread("FusionResult.png");
-    cv::cvtColor(tmpshowimg,tmpshowimg,CV_BGR2RGB);
-    QImage tmpqimg = QImage((const unsigned char*)(tmpshowimg.data),
-                        tmpshowimg.cols,tmpshowimg.rows,QImage::Format_RGB888);
-    QPixmap showimg = QPixmap::fromImage(tmpqimg);
+    int timecount = myqtime.restart();
+    QTime showtime(0,0,0);
+    showtime = showtime.addMSecs(timecount);
+    QStandardItem *tmpitem =
+            new QStandardItem("cost : "+ showtime.toString("hh:mm:ss.zzz") +" ...");
+    processInfoModel.appendRow(tmpitem);
+    QTime tottime(0,0,0);
+    tottime = tottime.addMSecs(totaltime);
+    tmpitem = new QStandardItem("cost totally : "+ tottime.toString("hh:mm:ss.zzz") + " ms...");
+    processInfoModel.appendRow(tmpitem);
+    ui->lv_proinfo->scrollToBottom();
+    totaltime += timecount;
+    QPixmap showimg("FusionResult.bmp");
+    if(showimg.isNull())
+        return;
     showimg = showimg.scaled(DEFAULT_WIDTH,DEFAULT_HEIGHT,
                                       Qt::KeepAspectRatio);
     ui->lbl_mainDisplay->setPixmap(showimg);
